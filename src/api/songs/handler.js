@@ -42,9 +42,14 @@ class SongsHandler {
     }
   }
 
-  async getSongsHandler() {
-    const songs = await this._service.getSongs();
-    return this._response.normalResponse({ songs });
+  async getSongsHandler(request, h) {
+    try {
+      const { title, performer } = request.query;
+      const songs = await this._service.getSongs({ title, performer });
+      return this._response.normalResponse({ songs });
+    } catch (error) {
+      return this.baseErrorHandler(error, h);
+    }
   }
 
   async putSongByIdHandler(request, h) {

@@ -44,9 +44,34 @@ class SongsService {
     return result.rows.map(mapSongResponse)[0];
   }
 
-  async getSongs() {
-    const result = await this._pool.query('SELECT * FROM songs');
-    return result.rows.map(mapSongsResponse);
+  async getSongs({ title, performer }) {
+    let queryText = 'SELECT * FROM songs';
+    const queryCall = {
+      text: queryText,
+      values: undefined,
+    };
+    if (title !== undefined) {
+      if (performer !== undefined) {
+        queryText += ' WHERE title ILIKE $1 AND performer ILIKE $2';
+        queryCall.text = queryText;
+        queryCall.values = [`%${title}%`, `%${performer}%`];
+      } else {
+        queryText += ' WHERE title ILIKE $1';
+        queryCall.text = queryText;
+        queryCall.values = [`%${title}%`];
+      }
+    } else if (performer !== undefined) {
+      queryText += ' WHERE performer ILIKE $1';
+      queryCall.text = queryText;
+      queryCall.values = [`%${performer}%`];
+    }
+    const queryResult = await this._pool.query(queryCall);
+
+    if (!queryResult.rows.length) {
+      throw new NotFoundError('Terjadi galat ketika mengambil lagu.');
+    }
+
+    return queryResult.rows.map(mapSongsResponse);
   }
 
   async getSongsByAlbum(albumId) {

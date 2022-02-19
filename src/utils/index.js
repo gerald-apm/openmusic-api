@@ -42,6 +42,7 @@ const mapSongsResponse = ({
 const baseErrorHandler = (error, h) => {
   const baseResponse = new BaseResponse();
   if (error instanceof ClientError) {
+    console.error(error);
     return h.response(baseResponse.exceptionResponse(error.message))
       .code(error.statusCode);
   }
