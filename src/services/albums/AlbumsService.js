@@ -1,22 +1,16 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable no-underscore-dangle */
 const { Pool } = require('pg');
 
 const { nanoid } = require('nanoid');
 const InvariantError = require('../../exceptions/InvariantError');
 const NotFoundError = require('../../exceptions/NotFoundError');
-
-const mapDBToModel = ({
-  id,
-  name,
-  year,
-}) => ({
-  id,
-  name,
-  year: Number(year),
-});
+const { mapAlbumResponse } = require('../../utils');
+const SongsService = require('../songs/SongsService');
 
 class AlbumsService {
   constructor() {
+    this._songsService = new SongsService();
     this._pool = new Pool();
   }
 
@@ -48,7 +42,10 @@ class AlbumsService {
       throw new NotFoundError('Album tidak ditemukan.');
     }
 
-    return result.rows.map(mapDBToModel)[0];
+    const songs = await this._songsService.getSongsByAlbum(id);
+
+    const resultCombined = result.rows.map(mapAlbumResponse)[0];
+    return Object.assign(resultCombined, { songs });
   }
 
   async editAlbumById(id, { name, year }) {

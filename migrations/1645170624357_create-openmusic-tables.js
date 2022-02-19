@@ -44,9 +44,6 @@ exports.up = (pgm) => {
     },
     album_id: {
       type: 'VARCHAR(64)',
-      references: 'albums("id")',
-      onDelete: 'CASCADE',
-      onUpdata: 'CASCADE',
     },
   });
 };

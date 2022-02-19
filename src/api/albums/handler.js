@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-underscore-dangle */
-const ClientError = require('../../exceptions/ClientError');
+const { baseErrorHandler } = require('../../utils');
 const BaseResponse = require('../../dto/BaseResponse');
 
 class AlbumsHandler {
@@ -12,19 +12,7 @@ class AlbumsHandler {
     this.getAlbumByIdHandler = this.getAlbumByIdHandler.bind(this);
     this.putAlbumByIdHandler = this.putAlbumByIdHandler.bind(this);
     this.deleteAlbumByIdHandler = this.deleteAlbumByIdHandler.bind(this);
-    this.baseErrorHandler = this.baseErrorHandler.bind(this);
-  }
-
-  baseErrorHandler(error, h) {
-    if (error instanceof ClientError) {
-      return h.response(this._response.exceptionResponse(error.message))
-        .code(error.statusCode);
-    }
-
-    // Server ERROR!
-    console.error(error);
-    return h.response(this._response.internalErrorResponse(error.message))
-      .code(500);
+    this.baseErrorHandler = baseErrorHandler;
   }
 
   async postAlbumHandler(request, h) {
